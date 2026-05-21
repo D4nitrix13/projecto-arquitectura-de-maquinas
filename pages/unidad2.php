@@ -700,7 +700,10 @@ require_once __DIR__ . "/../includes/navbar.php";
                 </p>
             </div>
 
-            <a href="unidad3.php" class="btn btn-primary">
+            <a href="unidad3.php"
+                class="btn btn-primary locked-next-unit"
+                data-required-quiz="unidad2Quiz"
+                data-min-score="7">
                 Ir a Unidad III
             </a>
         </div>

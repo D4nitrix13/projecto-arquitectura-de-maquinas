@@ -72,6 +72,23 @@ function setupQuiz(config) {
         `;
 
         resultBox.classList.add("show");
+
+        const minimumScore = 7;
+        const quizStorageKey = `quiz_score_${config.quizId}`;
+
+        localStorage.setItem(quizStorageKey, score.toString());
+
+        updateLockedNextUnits();
+
+        if (score >= minimumScore) {
+            resultBox.innerHTML += `
+                <br><strong>Estado:</strong> Aprobado. Ya puedes avanzar a la siguiente sección.
+            `;
+        } else {
+            resultBox.innerHTML += `
+                <br><strong>Estado:</strong> Necesitas al menos ${minimumScore}/${total} para avanzar. Repasa la unidad e inténtalo de nuevo.
+            `;
+        }
     });
 
     if (resetButton) {
@@ -255,7 +272,7 @@ end main`,
             },
             {
                 label: "Finalización del programa",
-                test: code => code.includes("mov ah, 4ch") || code.includes("mov ah, 4Ch".toLowerCase()),
+                test: code => code.includes("mov ah, 4ch"),
                 hint: "Usa mov ah, 4Ch para finalizar el programa."
             }
         ]
@@ -552,6 +569,7 @@ function fixPracticeSyntax(practiceKey) {
     }
 
     textarea.value = practice.solution;
+    textarea.dispatchEvent(new Event("input"));
 
     feedback.className = "practice-feedback success";
     feedback.innerHTML = `
@@ -602,10 +620,44 @@ document.addEventListener("click", function (event) {
     }
 });
 
+function updateLockedNextUnits() {
+    const lockedLinks = document.querySelectorAll(".locked-next-unit");
+
+    lockedLinks.forEach(function (link) {
+        const requiredQuiz = link.dataset.requiredQuiz;
+        const minScore = Number(link.dataset.minScore || 7);
+
+        if (!requiredQuiz) {
+            return;
+        }
+
+        const savedScore = Number(localStorage.getItem(`quiz_score_${requiredQuiz}`) || 0);
+        let message = link.parentElement.querySelector(".lock-message");
+
+        if (!message) {
+            message = document.createElement("div");
+            message.className = "lock-message";
+            link.parentElement.appendChild(message);
+        }
+
+        if (savedScore >= minScore) {
+            link.classList.add("unlocked");
+            message.classList.add("success");
+            message.innerHTML = `Unidad aprobada con ${savedScore}/10. Puedes continuar.`;
+        } else {
+            link.classList.remove("unlocked");
+            message.classList.remove("success");
+            message.innerHTML = `Debes obtener al menos ${minScore}/10 en el cuestionario para desbloquear esta opción.`;
+        }
+    });
+}
+
 /* =========================================================
    Syntax Highlighting: EMU8086 / Arduino
-   Versión corregida: no muestra <span> como texto
+   Corregido: evita que se muestren tokens o <span> como texto
    ========================================================= */
+
+const highlightedEditors = [];
 
 function escapeHtmlSyntax(value) {
     return value
@@ -655,20 +707,36 @@ function detectCodeLanguage(code) {
     return "codigo";
 }
 
+function indexToLetters(index) {
+    let letters = "";
+    let current = index;
+
+    do {
+        letters = String.fromCharCode(65 + (current % 26)) + letters;
+        current = Math.floor(current / 26) - 1;
+    } while (current >= 0);
+
+    return letters;
+}
+
 function createSyntaxTokenizer() {
     const tokens = [];
 
     function addToken(html) {
-        const token = `@@SYNTAX_TOKEN_${tokens.length}@@`;
-        tokens.push(html);
+        const token = `§§SYNTAX_PLACEHOLDER_${indexToLetters(tokens.length)}§§`;
+        tokens.push({
+            token,
+            html
+        });
+
         return token;
     }
 
     function restore(code) {
         let restoredCode = code;
 
-        tokens.forEach(function (html, index) {
-            restoredCode = restoredCode.replace(`@@SYNTAX_TOKEN_${index}@@`, html);
+        tokens.forEach(function (item) {
+            restoredCode = restoredCode.split(item.token).join(item.html);
         });
 
         return restoredCode;
@@ -853,6 +921,12 @@ function createHighlightedEditor(textarea) {
     });
 
     textarea.dataset.highlightEditorApplied = "true";
+
+    highlightedEditors.push({
+        textarea,
+        updateEditorHighlight
+    });
+
     updateEditorHighlight();
 }
 
@@ -864,10 +938,26 @@ function applyHighlightToEditors() {
     });
 }
 
+function refreshHighlightedEditors() {
+    highlightedEditors.forEach(function (editor) {
+        editor.updateEditorHighlight();
+    });
+}
+
+document.addEventListener("click", function (event) {
+    const clickedFixButton = event.target.closest("[data-fix], [data-arduino-fix]");
+
+    if (clickedFixButton) {
+        setTimeout(refreshHighlightedEditors, 0);
+    }
+});
+
 document.addEventListener("DOMContentLoaded", function () {
     applyHighlightToStaticBlocks();
     applyHighlightToEditors();
+    updateLockedNextUnits();
 });
 
 applyHighlightToStaticBlocks();
 applyHighlightToEditors();
+updateLockedNextUnits();

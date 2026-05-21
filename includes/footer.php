@@ -1,4 +1,6 @@
 <?php
+require_once __DIR__ . "/session.php";
+
 $basePath = "";
 
 if (
@@ -25,6 +27,11 @@ if (
 </footer>
 
 <script src="<?php echo $basePath; ?>assets/js/main.js"></script>
+
+<?php if (estudianteAutenticado()): ?>
+    <script src="<?php echo $basePath; ?>assets/js/progreso.js"></script>
+<?php endif; ?>
+
 </body>
 
 </html>

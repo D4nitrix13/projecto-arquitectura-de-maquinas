@@ -19,18 +19,15 @@ require_once __DIR__ . "/../includes/navbar.php";
             <a href="../assets/downloads/emu8086.zip"
                 download
                 class="btn btn-primary">
-                Descargar EMU8086 local
-            </a>
-
-            <a href="https://drive.google.com/drive/folders/1z54lgyUe0Kf97T82rhj2Vsprl3Y5jOmM?usp=drive_link"
-                target="_blank"
-                rel="noopener noreferrer"
-                class="btn btn-secondary">
-                Descargar desde Google Drive
+                Descargar EMU8086
             </a>
 
             <a href="../practicas/emu8086-practicas.php" class="btn btn-secondary">
                 Ver prácticas
+            </a>
+
+            <a href="arduino-tinkercad.php" class="btn btn-secondary">
+                Tutorial de Arduino
             </a>
         </div>
     </section>
@@ -86,17 +83,17 @@ require_once __DIR__ . "/../includes/navbar.php";
             <span class="badge">Descarga</span>
             <h2>Descargar EMU8086</h2>
             <p>
-                Puedes descargar el instalador desde el archivo local incluido en
-                este proyecto o usar el enlace de Google Drive como respaldo.
+                Puedes descargar el instalador directamente desde el archivo local
+                incluido en este proyecto.
             </p>
         </div>
 
         <div class="cards-grid two-columns">
             <article class="card featured-card">
-                <h3>Descarga local</h3>
+                <h3>Archivo disponible en el servidor</h3>
                 <p>
                     Esta opción descarga el archivo comprimido directamente desde
-                    la carpeta del proyecto.
+                    la carpeta local del proyecto.
                 </p>
 
                 <a href="../assets/downloads/emu8086.zip"
@@ -107,25 +104,17 @@ require_once __DIR__ . "/../includes/navbar.php";
             </article>
 
             <article class="card featured-card">
-                <h3>Descarga desde Drive</h3>
+                <h3>Ruta del archivo</h3>
                 <p>
-                    Esta opción abre la carpeta de Google Drive donde también se encuentra
-                    el archivo de EMU8086.
+                    El archivo de instalación está almacenado dentro del proyecto para
+                    que los estudiantes puedan descargarlo sin depender de enlaces externos.
                 </p>
 
-                <a href="https://drive.google.com/drive/folders/1z54lgyUe0Kf97T82rhj2Vsprl3Y5jOmM?usp=drive_link"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    class="btn btn-primary">
-                    Abrir Google Drive
-                </a>
+                <div class="note">
+                    <strong>Ruta:</strong>
+                    <code>assets/downloads/emu8086.zip</code>
+                </div>
             </article>
-        </div>
-
-        <div class="note">
-            <strong>Importante:</strong> para que la descarga local funcione, el archivo
-            debe existir en esta ruta:
-            <code>assets/downloads/emu8086.zip</code>.
         </div>
     </section>
 
@@ -134,8 +123,8 @@ require_once __DIR__ . "/../includes/navbar.php";
             <span class="badge">Instalación</span>
             <h2>Pasos para instalar EMU8086</h2>
             <p>
-                Después de descargar el archivo, sigue estos pasos para instalar
-                el programa en tu computadora.
+                Después de descargar el archivo ZIP desde esta página, sigue estos
+                pasos para instalar el programa en tu computadora.
             </p>
         </div>
 
@@ -145,8 +134,9 @@ require_once __DIR__ . "/../includes/navbar.php";
                 <div>
                     <h3>Descargar el archivo ZIP</h3>
                     <p>
-                        Haz clic en el botón de descarga local o en el enlace de Google Drive.
-                        Guarda el archivo comprimido en tu computadora.
+                        Haz clic en el botón <strong>Descargar EMU8086</strong> o
+                        <strong>Descargar archivo ZIP</strong>. El navegador descargará
+                        el archivo comprimido desde el servidor del proyecto.
                     </p>
                 </div>
             </article>

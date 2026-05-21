@@ -973,7 +973,10 @@ end main</code></pre>
                 </p>
             </div>
 
-            <a href="../tutoriales/emu8086.php" class="btn btn-primary">
+            <a href="../tutoriales/emu8086.php"
+                class="btn btn-primary locked-next-unit"
+                data-required-quiz="unidad5Quiz"
+                data-min-score="7">
                 Ir a tutoriales
             </a>
         </div>

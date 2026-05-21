@@ -3,6 +3,53 @@ $pageTitle = "Inicio | Arquitectura de Máquinas";
 $currentPage = "inicio";
 require_once __DIR__ . "/includes/header.php";
 require_once __DIR__ . "/includes/navbar.php";
+
+$carnetEstudiante = obtenerCarnetEstudiante();
+$unidades = obtenerConfiguracionUnidades();
+
+function estadoUnidadIndex(string $carnet, string $archivo, array $unidad): array
+{
+    $puntaje = obtenerPuntajeQuiz($carnet, $unidad["quiz"]);
+    $bloqueada = unidadBloqueadaParaEstudiante($carnet, $archivo);
+    $aprobada = $puntaje >= NOTA_MINIMA_APROBACION;
+
+    if ($aprobada) {
+        return [
+            "texto" => "Aprobada",
+            "clase" => "unit-status-approved",
+            "detalle" => "Puntaje: {$puntaje}/10",
+            "bloqueada" => false
+        ];
+    }
+
+    if ($bloqueada) {
+        return [
+            "texto" => "Bloqueada",
+            "clase" => "unit-status-locked",
+            "detalle" => "Aprueba la unidad anterior con mínimo 7/10 para desbloquearla.",
+            "bloqueada" => true
+        ];
+    }
+
+    return [
+        "texto" => "Disponible",
+        "clase" => "unit-status-available",
+        "detalle" => "Realiza el cuestionario para aprobarla.",
+        "bloqueada" => false
+    ];
+}
+
+function descripcionUnidadIndex(string $archivo): string
+{
+    return match ($archivo) {
+        "unidad1.php" => "Introducción a los microprocesadores y microcontroladores.",
+        "unidad2.php" => "Arquitectura del microprocesador y conexión con dispositivos.",
+        "unidad3.php" => "Programación del microprocesador usando lenguaje ensamblador.",
+        "unidad4.php" => "Arquitectura de los microcontroladores y tipos principales.",
+        "unidad5.php" => "Programación de microcontroladores, instrucciones y herramientas.",
+        default => "Contenido educativo de arquitectura de máquinas."
+    };
+}
 ?>
 
 <main>
@@ -16,19 +63,26 @@ require_once __DIR__ . "/includes/navbar.php";
             </p>
 
             <div class="hero-actions">
-                <a href="tutoriales/emu8086.php" class="btn btn-primary">Ver tutoriales de instalación</a>
-                <a href="practicas/emu8086-practicas.php" class="btn btn-secondary">Ver prácticas</a>
+                <a href="pages/unidad1.php" class="btn btn-primary">
+                    Comenzar curso
+                </a>
             </div>
         </div>
 
         <div class="hero-card">
-            <h3>Contenido principal</h3>
-            <ul>
-                <li>Arquitectura y organización de computadoras</li>
-                <li>Microprocesadores y microcontroladores</li>
-                <li>Arquitectura Von Neumann</li>
-                <li>Programación en ensamblador</li>
-                <li>Arduino y Tinkercad</li>
+            <h3>Tu progreso</h3>
+
+            <ul class="progress-list">
+                <?php foreach ($unidades as $archivo => $unidad): ?>
+                    <?php $estado = estadoUnidadIndex($carnetEstudiante, $archivo, $unidad); ?>
+
+                    <li>
+                        <span><?php echo htmlspecialchars($unidad["nombre"]); ?></span>
+                        <strong class="<?php echo $estado["clase"]; ?>">
+                            <?php echo htmlspecialchars($estado["texto"]); ?>
+                        </strong>
+                    </li>
+                <?php endforeach; ?>
             </ul>
         </div>
     </section>
@@ -38,41 +92,50 @@ require_once __DIR__ . "/includes/navbar.php";
             <span class="badge">Unidades</span>
             <h2>Temario del proyecto</h2>
             <p>
-                El proyecto está dividido en cinco unidades principales, integrando teoría,
-                ejemplos y prácticas.
+                Las unidades se desbloquean en orden. Para avanzar necesitas aprobar
+                el cuestionario de la unidad anterior con una nota mínima de 7/10.
             </p>
         </div>
 
         <div class="cards-grid">
-            <article class="card">
-                <h3>Unidad I</h3>
-                <p>Introducción a los microprocesadores y microcontroladores.</p>
-                <a href="pages/unidad1.php">Ver unidad</a>
-            </article>
+            <?php foreach ($unidades as $archivo => $unidad): ?>
+                <?php
+                $estado = estadoUnidadIndex($carnetEstudiante, $archivo, $unidad);
+                $href = "pages/" . $archivo;
+                ?>
 
-            <article class="card">
-                <h3>Unidad II</h3>
-                <p>Arquitectura del microprocesador y conexión con dispositivos.</p>
-                <a href="pages/unidad2.php">Ver unidad</a>
-            </article>
+                <article class="card unit-card-index <?php echo $estado["bloqueada"] ? 'unit-card-locked' : ''; ?>">
+                    <div class="unit-card-top">
+                        <h3><?php echo htmlspecialchars($unidad["nombre"]); ?></h3>
 
-            <article class="card">
-                <h3>Unidad III</h3>
-                <p>Programación del microprocesador usando lenguaje ensamblador.</p>
-                <a href="pages/unidad3.php">Ver unidad</a>
-            </article>
+                        <span class="unit-status <?php echo $estado["clase"]; ?>">
+                            <?php echo htmlspecialchars($estado["texto"]); ?>
+                        </span>
+                    </div>
 
-            <article class="card">
-                <h3>Unidad IV</h3>
-                <p>Arquitectura de los microcontroladores y tipos principales.</p>
-                <a href="pages/unidad4.php">Ver unidad</a>
-            </article>
+                    <p>
+                        <?php echo htmlspecialchars(descripcionUnidadIndex($archivo)); ?>
+                    </p>
 
-            <article class="card">
-                <h3>Unidad V</h3>
-                <p>Programación de microcontroladores con Arduino y Tinkercad.</p>
-                <a href="pages/unidad5.php">Ver unidad</a>
-            </article>
+                    <small class="unit-card-detail">
+                        <?php echo htmlspecialchars($estado["detalle"]); ?>
+                    </small>
+
+                    <?php if ($estado["bloqueada"]): ?>
+                        <button type="button"
+                            class="unit-card-link-disabled"
+                            disabled
+                            aria-disabled="true"
+                            title="Unidad bloqueada. Debes aprobar la unidad anterior.">
+                            Bloqueada 🔒
+                        </button>
+                    <?php else: ?>
+                        <a href="<?php echo $href; ?>">
+                            Ver unidad
+                        </a>
+                    <?php endif; ?>
+                </article>
+            <?php endforeach; ?>
         </div>
     </section>
 
@@ -93,7 +156,9 @@ require_once __DIR__ . "/includes/navbar.php";
                     Aprende a descargar, instalar y utilizar EMU8086 para ejecutar
                     programas básicos en lenguaje ensamblador.
                 </p>
-                <a href="tutoriales/emu8086.php" class="btn btn-primary">Abrir tutorial</a>
+                <a href="tutoriales/emu8086.php" class="btn btn-primary">
+                    Abrir tutorial
+                </a>
             </article>
 
             <article class="card featured-card">
@@ -102,10 +167,12 @@ require_once __DIR__ . "/includes/navbar.php";
                     Aprende a usar Tinkercad Circuits para simular proyectos con
                     Arduino UNO, LEDs, botones y código básico.
                 </p>
-                <a href="tutoriales/arduino-tinkercad.php" class="btn btn-primary">Abrir tutorial</a>
+                <a href="tutoriales/arduino-tinkercad.php" class="btn btn-primary">
+                    Abrir tutorial
+                </a>
             </article>
         </div>
     </section>
 </main>
 
-<?php require_once __DIR__ . "/includes/footer.php"; ?>w
+<?php require_once __DIR__ . "/includes/footer.php"; ?>
