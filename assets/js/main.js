@@ -601,3 +601,273 @@ document.addEventListener("click", function (event) {
         });
     }
 });
+
+/* =========================================================
+   Syntax Highlighting: EMU8086 / Arduino
+   Versión corregida: no muestra <span> como texto
+   ========================================================= */
+
+function escapeHtmlSyntax(value) {
+    return value
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;");
+}
+
+function detectCodeLanguage(code) {
+    const lowerCode = code.toLowerCase();
+
+    const arduinoSignals = [
+        "void setup",
+        "void loop",
+        "pinmode",
+        "digitalwrite",
+        "digitalread",
+        "analogread",
+        "analogwrite",
+        "serial.begin",
+        "serial.println"
+    ];
+
+    const asmSignals = [
+        ".model",
+        ".stack",
+        ".data",
+        ".code",
+        "main proc",
+        "int 21h",
+        "mov ax",
+        "mov ah",
+        "lea dx"
+    ];
+
+    const arduinoScore = arduinoSignals.filter(signal => lowerCode.includes(signal)).length;
+    const asmScore = asmSignals.filter(signal => lowerCode.includes(signal)).length;
+
+    if (arduinoScore > asmScore) {
+        return "arduino";
+    }
+
+    if (asmScore > 0) {
+        return "emu8086";
+    }
+
+    return "codigo";
+}
+
+function createSyntaxTokenizer() {
+    const tokens = [];
+
+    function addToken(html) {
+        const token = `@@SYNTAX_TOKEN_${tokens.length}@@`;
+        tokens.push(html);
+        return token;
+    }
+
+    function restore(code) {
+        let restoredCode = code;
+
+        tokens.forEach(function (html, index) {
+            restoredCode = restoredCode.replace(`@@SYNTAX_TOKEN_${index}@@`, html);
+        });
+
+        return restoredCode;
+    }
+
+    return {
+        addToken,
+        restore
+    };
+}
+
+function highlightWithTokenRegex(code, regex, className, tokenizer) {
+    return code.replace(regex, function (match) {
+        return tokenizer.addToken(`<span class="${className}">${match}</span>`);
+    });
+}
+
+function highlightAsmCode(rawCode) {
+    let code = escapeHtmlSyntax(rawCode);
+    const tokenizer = createSyntaxTokenizer();
+
+    code = highlightWithTokenRegex(code, /;.*$/gm, "syntax-comment", tokenizer);
+    code = highlightWithTokenRegex(code, /'[^']*'/g, "syntax-string", tokenizer);
+    code = highlightWithTokenRegex(code, /"[^"]*"/g, "syntax-string", tokenizer);
+
+    code = highlightWithTokenRegex(
+        code,
+        /^([a-zA-Z_][\w]*:)/gm,
+        "syntax-label",
+        tokenizer
+    );
+
+    code = highlightWithTokenRegex(
+        code,
+        /\b(\.model|\.stack|\.data|\.code|db|dw|dd|equ|proc|endp|end|segment|ends|macro|endm)\b/gi,
+        "syntax-directive",
+        tokenizer
+    );
+
+    code = highlightWithTokenRegex(
+        code,
+        /\b(mov|lea|add|sub|inc|dec|mul|div|cmp|jmp|je|jne|jg|jl|jge|jle|loop|int|call|ret|push|pop|nop|and|or|xor|not|shl|shr)\b/gi,
+        "syntax-keyword",
+        tokenizer
+    );
+
+    code = highlightWithTokenRegex(
+        code,
+        /\b(ax|ah|al|bx|bh|bl|cx|ch|cl|dx|dh|dl|sp|bp|si|di|cs|ds|ss|es|ip)\b/gi,
+        "syntax-register",
+        tokenizer
+    );
+
+    code = highlightWithTokenRegex(
+        code,
+        /\b(@data|offset|ptr|byte|word|small|large|medium|tiny|high|low)\b/gi,
+        "syntax-constant",
+        tokenizer
+    );
+
+    code = highlightWithTokenRegex(
+        code,
+        /\b(\d+[a-f]?\w*h|\d+)\b/gi,
+        "syntax-number",
+        tokenizer
+    );
+
+    return tokenizer.restore(code);
+}
+
+function highlightArduinoCode(rawCode) {
+    let code = escapeHtmlSyntax(rawCode);
+    const tokenizer = createSyntaxTokenizer();
+
+    code = highlightWithTokenRegex(code, /\/\/.*$/gm, "syntax-comment", tokenizer);
+    code = highlightWithTokenRegex(code, /\/\*[\s\S]*?\*\//g, "syntax-comment", tokenizer);
+    code = highlightWithTokenRegex(code, /'[^']*'/g, "syntax-string", tokenizer);
+    code = highlightWithTokenRegex(code, /"[^"]*"/g, "syntax-string", tokenizer);
+
+    code = highlightWithTokenRegex(
+        code,
+        /\b(void|int|float|double|char|byte|bool|boolean|long|short|unsigned|const|String)\b/g,
+        "syntax-type",
+        tokenizer
+    );
+
+    code = highlightWithTokenRegex(
+        code,
+        /\b(if|else|for|while|do|switch|case|break|continue|return)\b/g,
+        "syntax-keyword",
+        tokenizer
+    );
+
+    code = highlightWithTokenRegex(
+        code,
+        /\b(setup|loop|pinMode|digitalWrite|digitalRead|analogRead|analogWrite|delay|map)\b/g,
+        "syntax-function",
+        tokenizer
+    );
+
+    code = highlightWithTokenRegex(
+        code,
+        /\b(Serial|begin|println|print|HIGH|LOW|INPUT|OUTPUT|INPUT_PULLUP|A0|A1|A2|A3|A4|A5)\b/g,
+        "syntax-constant",
+        tokenizer
+    );
+
+    code = highlightWithTokenRegex(
+        code,
+        /\b(\d+)\b/g,
+        "syntax-number",
+        tokenizer
+    );
+
+    return tokenizer.restore(code);
+}
+
+function highlightCodeByLanguage(code, language) {
+    if (language === "arduino") {
+        return highlightArduinoCode(code);
+    }
+
+    if (language === "emu8086") {
+        return highlightAsmCode(code);
+    }
+
+    return escapeHtmlSyntax(code);
+}
+
+function applyHighlightToStaticBlocks() {
+    const codeBlocks = document.querySelectorAll("pre code");
+
+    codeBlocks.forEach(function (codeBlock) {
+        const parentPre = codeBlock.closest("pre");
+
+        if (!parentPre || parentPre.dataset.highlightApplied === "true") {
+            return;
+        }
+
+        const rawCode = codeBlock.textContent;
+        const language = detectCodeLanguage(rawCode);
+        const highlightedCode = highlightCodeByLanguage(rawCode, language);
+
+        codeBlock.innerHTML = highlightedCode;
+        parentPre.classList.add("syntax-highlighted");
+        parentPre.dataset.language = language;
+        parentPre.dataset.highlightApplied = "true";
+    });
+}
+
+function createHighlightedEditor(textarea) {
+    if (textarea.dataset.highlightEditorApplied === "true") {
+        return;
+    }
+
+    const shell = document.createElement("div");
+    shell.className = "code-editor-shell";
+
+    const highlightLayer = document.createElement("pre");
+    highlightLayer.className = "code-highlight-layer";
+
+    const currentParent = textarea.parentNode;
+
+    currentParent.insertBefore(shell, textarea);
+    shell.appendChild(highlightLayer);
+    shell.appendChild(textarea);
+
+    function updateEditorHighlight() {
+        const rawCode = textarea.value;
+        const language = detectCodeLanguage(rawCode);
+        const highlightedCode = highlightCodeByLanguage(rawCode, language);
+
+        shell.dataset.language = language;
+        highlightLayer.innerHTML = highlightedCode + "\n";
+    }
+
+    textarea.addEventListener("input", updateEditorHighlight);
+
+    textarea.addEventListener("scroll", function () {
+        highlightLayer.scrollTop = textarea.scrollTop;
+        highlightLayer.scrollLeft = textarea.scrollLeft;
+    });
+
+    textarea.dataset.highlightEditorApplied = "true";
+    updateEditorHighlight();
+}
+
+function applyHighlightToEditors() {
+    const editors = document.querySelectorAll("textarea.code-editor");
+
+    editors.forEach(function (textarea) {
+        createHighlightedEditor(textarea);
+    });
+}
+
+document.addEventListener("DOMContentLoaded", function () {
+    applyHighlightToStaticBlocks();
+    applyHighlightToEditors();
+});
+
+applyHighlightToStaticBlocks();
+applyHighlightToEditors();
