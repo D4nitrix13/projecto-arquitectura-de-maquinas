@@ -9,6 +9,7 @@ if (estudianteAutenticado()) {
 
 $error = "";
 $carnet = "";
+$cuentaEliminada = isset($_GET["cuenta_eliminada"]) && $_GET["cuenta_eliminada"] === "1";
 
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $carnet = strtoupper(trim($_POST["carnet"] ?? ""));
@@ -59,9 +60,15 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                 </p>
             </div>
 
+            <?php if ($cuentaEliminada): ?>
+                <div class="auth-success">
+                    Tu cuenta y progreso fueron eliminados correctamente.
+                </div>
+            <?php endif; ?>
+
             <?php if ($error !== ""): ?>
                 <div class="auth-alert">
-                    <?php echo htmlspecialchars($error); ?>
+                    <?php echo htmlspecialchars($error, ENT_QUOTES, "UTF-8"); ?>
                 </div>
             <?php endif; ?>
 
@@ -72,7 +79,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                     type="text"
                     id="carnet"
                     name="carnet"
-                    value="<?php echo htmlspecialchars($carnet); ?>"
+                    value="<?php echo htmlspecialchars($carnet, ENT_QUOTES, "UTF-8"); ?>"
                     placeholder="Ejemplo: 2023-0823I"
                     required>
 
@@ -92,6 +99,26 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             </div>
         </section>
     </main>
+
+    <?php if ($cuentaEliminada): ?>
+        <script>
+            localStorage.removeItem("quiz_score_unidad1Quiz");
+            localStorage.removeItem("quiz_score_unidad2Quiz");
+            localStorage.removeItem("quiz_score_unidad3Quiz");
+            localStorage.removeItem("quiz_score_unidad4Quiz");
+            localStorage.removeItem("quiz_score_unidad5Quiz");
+
+            localStorage.removeItem("unidad1Quiz");
+            localStorage.removeItem("unidad2Quiz");
+            localStorage.removeItem("unidad3Quiz");
+            localStorage.removeItem("unidad4Quiz");
+            localStorage.removeItem("unidad5Quiz");
+
+            localStorage.removeItem("progreso");
+            localStorage.removeItem("progreso_estudiante");
+            localStorage.removeItem("estudiante_progreso");
+        </script>
+    <?php endif; ?>
 </body>
 
 </html>

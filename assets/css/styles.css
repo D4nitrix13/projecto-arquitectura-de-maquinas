@@ -1831,3 +1831,118 @@ pre.syntax-highlighted code {
     opacity: 0.72;
     filter: grayscale(0.25);
 }
+
+/* =========================================================
+   Delete Account
+   ========================================================= */
+
+.delete-account-link {
+    color: #fed7aa !important;
+    background: rgba(249, 115, 22, 0.12);
+    border: 1px solid rgba(251, 146, 60, 0.28);
+    padding: 9px 12px;
+    border-radius: 999px;
+    font-size: 0.92rem;
+    font-weight: 800;
+    transition: 0.2s ease;
+}
+
+.delete-account-link:hover {
+    background: rgba(249, 115, 22, 0.24) !important;
+    color: #ffffff !important;
+}
+
+.badge-danger {
+    background: rgba(239, 68, 68, 0.16);
+    color: #fecaca;
+    border: 1px solid rgba(248, 113, 113, 0.35);
+}
+
+.delete-account-hero {
+    background:
+        radial-gradient(circle at top right, rgba(239, 68, 68, 0.25), transparent 30%),
+        linear-gradient(135deg, #0f172a 0%, #450a0a 100%);
+}
+
+.delete-account-card {
+    width: min(760px, 100%);
+    margin: 0 auto;
+    background: #ffffff;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 30px;
+    box-shadow: var(--shadow);
+}
+
+.danger-note {
+    background: #fef2f2;
+    border: 1px solid #fecaca;
+    border-left: 6px solid #ef4444;
+    color: #7f1d1d;
+    border-radius: 16px;
+    padding: 20px;
+    margin-bottom: 24px;
+}
+
+.danger-note h2 {
+    color: #7f1d1d;
+    margin-bottom: 10px;
+}
+
+.danger-note p {
+    color: #7f1d1d;
+    margin-bottom: 10px;
+}
+
+.danger-note p:last-child {
+    margin-bottom: 0;
+}
+
+.delete-account-form {
+    margin-top: 20px;
+}
+
+.delete-actions {
+    display: flex;
+    justify-content: flex-end;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-top: 18px;
+}
+
+.btn-danger {
+    background: #dc2626;
+    color: #ffffff;
+}
+
+.btn-danger:hover {
+    background: #b91c1c;
+    transform: translateY(-2px);
+}
+
+.auth-success {
+    background: #f0fdf4;
+    color: #14532d;
+    border: 1px solid #22c55e;
+    border-radius: 14px;
+    padding: 14px 16px;
+    margin-top: 18px;
+    font-weight: 700;
+}
+
+@media (max-width: 950px) {
+    .delete-account-link {
+        display: block;
+        width: 100%;
+        text-align: left;
+        border-radius: 12px;
+    }
+
+    .delete-actions {
+        flex-direction: column-reverse;
+    }
+
+    .delete-actions .btn {
+        width: 100%;
+    }
+}

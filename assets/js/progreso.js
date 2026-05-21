@@ -10,6 +10,21 @@
         unidad5Quiz: "Unidad V"
     };
 
+    async function obtenerJsonSeguro(response) {
+        const text = await response.text();
+
+        if (!text || text.trim() === "") {
+            throw new Error("La API devolvió una respuesta vacía.");
+        }
+
+        try {
+            return JSON.parse(text);
+        } catch (error) {
+            console.warn("Respuesta recibida desde la API:", text);
+            throw error;
+        }
+    }
+
     async function enviarProgreso(quizId, score) {
         if (!quizNames[quizId]) {
             return;
@@ -22,7 +37,7 @@
         }
 
         try {
-            await fetch(getApiProgressPath(), {
+            const response = await fetch(getApiProgressPath(), {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json"
@@ -32,6 +47,13 @@
                     score: numericScore
                 })
             });
+
+            if (!response.ok) {
+                console.warn("No se pudo guardar el progreso. Código HTTP:", response.status);
+                return;
+            }
+
+            await obtenerJsonSeguro(response);
         } catch (error) {
             console.warn("No se pudo guardar el progreso en JSON.", error);
         }
@@ -44,10 +66,11 @@
             });
 
             if (!response.ok) {
+                console.warn("No se pudo cargar el progreso. Código HTTP:", response.status);
                 return;
             }
 
-            const data = await response.json();
+            const data = await obtenerJsonSeguro(response);
 
             if (!data.ok || !data.estudiante || !data.estudiante.puntajes) {
                 return;

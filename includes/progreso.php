@@ -32,6 +32,10 @@ function guardarEstudiantesRegistrados(array $datos): void
 
     $json = json_encode($datos, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
 
+    if ($json === false) {
+        $json = "{}";
+    }
+
     file_put_contents(PROGRESO_ESTUDIANTES_PATH, $json, LOCK_EX);
 }
 
@@ -123,6 +127,22 @@ function guardarModuloAprobado(string $carnet, string $quizId, int $puntaje): ar
     guardarEstudiantesRegistrados($estudiantes);
 
     return $estudiantes[$carnet];
+}
+
+function eliminarEstudiante(string $carnet): bool
+{
+    $carnet = strtoupper(trim($carnet));
+    $estudiantes = leerEstudiantesRegistrados();
+
+    if (!isset($estudiantes[$carnet])) {
+        return false;
+    }
+
+    unset($estudiantes[$carnet]);
+
+    guardarEstudiantesRegistrados($estudiantes);
+
+    return true;
 }
 
 function obtenerConfiguracionUnidades(): array

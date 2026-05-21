@@ -1,21 +1,4 @@
 {
-    "2023-0718I": {
-        "carnet": "2023-0718I",
-        "creado_en": "2026-05-21 01:49:02",
-        "ultimo_acceso": "2026-05-21 01:55:54",
-        "modulos_aprobados": {
-            "unidad1Quiz": {
-                "quiz_id": "unidad1Quiz",
-                "modulo": "Unidad I: Introducción a los microprocesadores y microcontroladores",
-                "puntaje": 7,
-                "aprobado_en": "2026-05-21 01:49:02",
-                "actualizado_en": "2026-05-21 01:55:54"
-            }
-        },
-        "puntajes": {
-            "unidad1Quiz": 7
-        }
-    },
     "2023-0823I": {
         "carnet": "2023-0823I",
         "creado_en": "2026-05-21 02:05:11",
@@ -123,5 +106,12 @@
             "unidad3Quiz": 9,
             "unidad4Quiz": 8
         }
+    },
+    "2023-0718I": {
+        "carnet": "2023-0718I",
+        "creado_en": "2026-05-21 02:39:14",
+        "ultimo_acceso": "2026-05-21 02:39:14",
+        "modulos_aprobados": [],
+        "puntajes": []
     }
 }
