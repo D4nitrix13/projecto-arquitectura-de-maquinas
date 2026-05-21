@@ -577,3 +577,27 @@ document.querySelectorAll("[data-fix]").forEach(function (button) {
         fixPracticeSyntax(button.dataset.fix);
     });
 });
+
+const dropdownDetails = document.querySelectorAll(".dropdown-details");
+
+dropdownDetails.forEach(function (details) {
+    details.addEventListener("toggle", function () {
+        if (details.open) {
+            dropdownDetails.forEach(function (otherDetails) {
+                if (otherDetails !== details) {
+                    otherDetails.removeAttribute("open");
+                }
+            });
+        }
+    });
+});
+
+document.addEventListener("click", function (event) {
+    const clickedInsideDropdown = event.target.closest(".nav-dropdown");
+
+    if (!clickedInsideDropdown) {
+        dropdownDetails.forEach(function (details) {
+            details.removeAttribute("open");
+        });
+    }
+});

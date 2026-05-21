@@ -9,6 +9,11 @@ if (
 ) {
     $basePath = "../";
 }
+
+$currentFile = basename($_SERVER["PHP_SELF"]);
+
+$isTutorialesActive = str_contains($_SERVER["PHP_SELF"], "/tutoriales/");
+$isPracticasActive = str_contains($_SERVER["PHP_SELF"], "/practicas/");
 ?>
 
 <header class="site-header">
@@ -65,18 +70,44 @@ if (
                 </a>
             </li>
 
-            <li>
-                <a href="<?php echo $basePath; ?>tutoriales/emu8086.php"
-                    class="<?php echo $currentPage === 'emu8086' ? 'active' : ''; ?>">
-                    EMU8086
-                </a>
+            <li class="nav-dropdown">
+                <details class="dropdown-details" <?php echo $isTutorialesActive ? 'open' : ''; ?>>
+                    <summary class="<?php echo $isTutorialesActive ? 'active' : ''; ?>">
+                        Tutoriales
+                    </summary>
+
+                    <div class="dropdown-menu">
+                        <a href="<?php echo $basePath; ?>tutoriales/emu8086.php"
+                            class="<?php echo $currentFile === 'emu8086.php' ? 'active' : ''; ?>">
+                            EMU8086
+                        </a>
+
+                        <a href="<?php echo $basePath; ?>tutoriales/arduino-tinkercad.php"
+                            class="<?php echo $currentFile === 'arduino-tinkercad.php' ? 'active' : ''; ?>">
+                            Arduino y Tinkercad
+                        </a>
+                    </div>
+                </details>
             </li>
 
-            <li>
-                <a href="<?php echo $basePath; ?>tutoriales/arduino-tinkercad.php"
-                    class="<?php echo $currentPage === 'arduino' ? 'active' : ''; ?>">
-                    Arduino
-                </a>
+            <li class="nav-dropdown">
+                <details class="dropdown-details" <?php echo $isPracticasActive ? 'open' : ''; ?>>
+                    <summary class="<?php echo $isPracticasActive ? 'active' : ''; ?>">
+                        Prácticas
+                    </summary>
+
+                    <div class="dropdown-menu">
+                        <a href="<?php echo $basePath; ?>practicas/emu8086-practicas.php"
+                            class="<?php echo $currentFile === 'emu8086-practicas.php' ? 'active' : ''; ?>">
+                            Prácticas EMU8086
+                        </a>
+
+                        <a href="<?php echo $basePath; ?>practicas/arduino-practicas.php"
+                            class="<?php echo $currentFile === 'arduino-practicas.php' ? 'active' : ''; ?>">
+                            Prácticas Arduino
+                        </a>
+                    </div>
+                </details>
             </li>
         </ul>
     </nav>
